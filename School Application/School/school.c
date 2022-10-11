@@ -62,25 +62,28 @@ void printSchool()
 
 /*calls a function that look for the student name in the school
  if it exists then it prints this student information 
- and return 1 to print the appropriate outline 
- if it's not exist it returns 0                               */
+ and return APPROVED_OPERATION to print the appropriate outline 
+ if it's not exist it returns DECLINED_OPERATION                               */
 
-int printSpecificStudent()
+school_Error_t printSpecificStudent()
 {
-	int index=lookForStudent(sch.stdnumber);/*to get the index of the student to print it's information*/
-	if(index!=-1)/*if the student exist*/
+	int index;/*to get the index of the student to print it's information*/
+	student_Error_t std_state=lookForStudent(sch.stdnumber,&index);
+	school_Error_t school_state;
+	if(std_state==STUDENT_FOUNDED)/*if the student exist*/
 	{
 		flag=1;/*global variable in another file to let the printStudent function that printSpecificStudent ()is the calee */
 		printStudent(index,sch.stdnumber);/*print the whole infrmation*/
 		flag=0;/*reset it again*/
-		return 1;/*to print the appropriate outline*/
+		school_state=APPROVED_OPERATION;
 	}
 	else
 	{
 		printf("\nThere's no student with this name");
 		printf("\a");
-		return 0;/*the student isn't exist so don't print any outline*/
+		school_state=DECLINED_OPERATION;/*the student isn't exist so doesn't */
 	}
+	return school_state;
 }
 
 /*This function check if the school is full or not
@@ -88,27 +91,34 @@ int printSpecificStudent()
  call anoter function to scan the rest of the information
  finally, it increase the number of students un the school by 1 and return 1 to print the appropriate outline*/
 
-int addStudentToSchool()
+school_Error_t addStudentToSchool()
 {
-	if((sch.stdnumber)<=maxOfStudent)/*check the availbilty of free space for new student */
+		school_Error_t school_state=DECLINED_OPERATION;/*no place so don't print any outline*/
+	if((sch.stdnumber)<=MAXSTUDENTS)/*check the availbilty of free space for new student */
 	{
 		sch.std[sch.stdnumber]=sch.stdnumber;/*set the id automatically*/
 		scanStudent(sch.std[sch.stdnumber]);/*call a function that scans the rest of the information*/
 		(sch.stdnumber)++;/*increase the number of the students in the school*/
-		return 1;/*to print the appropriate outline*/
+		school_state=APPROVED_OPERATION;/*to print the appropriate outline*/
 	}
-	return 0;/*no place so don't print any outline*/
+	return school_state;
 }
 
 /*this function call a function that check if this student in the school or not using the id */
 
-int checkStudentInSchool()
+school_Error_t checkStudentInSchool(int *index)
 {
-	return  scanCheckID(sch.stdnumber);
+	school_Error_t school_state=DECLINED_OPERATION;
+	student_Error_t std_state=scanCheckID(sch.stdnumber,index);
+	if(std_state==STUDENT_FOUNDED)
+	{
+		school_state=APPROVED_OPERATION;
+	}
+	
+	return school_state ;
 }
 
-/*this function get the if of the student then print it's old information 
- then call another function that scan the new information               */
+/* print it's old information then call another function that scan the new information */
 
 void editStudentInSchool(int id)
 {
@@ -128,16 +138,17 @@ void callStudentInSchool()
 /*function to delete std from the school by calling another function 
 then if it deleated already decrease the number of the students by 1*/
 
-int deleteStudentInSchool()
+school_Error_t deleteStudentInSchool()
 {
-	
-	int deleted=deleteStudent(sch.stdnumber);/*function to scan id and check it*/
-	if(deleted)/*if it's deleated*/
+	student_Error_t deleted=deleteStudent(sch.stdnumber);/*function to scan id and check it*/
+	school_Error_t state=DECLINED_OPERATION;
+	if(deleted==STUDENT_FOUNDED)/*if it's deleated*/
 	{
 		(sch.stdnumber)--;/*decrease the number of the students by 1*/
-		return 1;/*to print the appropriate outline*/
+		state=APPROVED_OPERATION;
+		
 	}
-	return 0;/*no deletions so don't print any outline*/
+	return state;
 	
 }
 
