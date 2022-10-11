@@ -89,8 +89,8 @@ void mode2()
 	do
 	{
 		system("cls");/*To clear the terminal screen*/
-		int founded=printSpecificStudent();/*scan the name and check if it exist in the database and print the information of this student in the school*/
-		if(founded)
+		school_Error_t founded=printSpecificStudent();/*scan the name and check if it exist in the database and print the information of this student in the school*/
+		if(founded==APPROVED_OPERATION)
 		{
 			modeOutline2();/*to print the appropriate outline*/
 			gotoxy(53,1);/*the appropriate place in the screen to the next print */
@@ -112,8 +112,8 @@ void mode3()
 	do
 	{
 		system("cls");/*To clear the terminal screen*/
-		int added =addStudentToSchool();/*check if there's enough space in the school if true the students is added*/
-		if(added)
+		school_Error_t added =addStudentToSchool();/*check if there's enough space in the school if true the students is added*/
+		if(added==APPROVED_OPERATION)
 		{
 		modeOutline3();/*to print the appropriate outline*/
 		gotoxy(50,1);/*the appropriate place in the screen to the next print */
@@ -138,6 +138,7 @@ void mode3()
   
 void mode4()
 {
+	school_Error_t state;
 	int index;
 	int esc;
 	do{
@@ -145,8 +146,8 @@ void mode4()
 	system("cls");/*To clear the terminal screen*/
 	modeOutline1(stdnumber);/*to print the table outline*/
 	printSchool();/*to print the students after the outline is printed */
-	index=checkStudentInSchool();/*to scan the id and check if this student in the school and get the index if exist or -1 if not*/
-	if(index!=-1)/*if the student exist*/
+	state=checkStudentInSchool(&index);/*to scan the id and check if this student in the school and get the index if exist or -1 if not*/
+	if(state==APPROVED_OPERATION)/*if the student exist*/
 	{
 		modeOutline3();/*to print the appropriate outline*/
 		editStudentInSchool(index);/*to enable the user to edit the student data*/
@@ -173,8 +174,8 @@ void mode5()
 	system("cls");/*To clear the terminal screen*/
 	modeOutline1(stdnumber);/*to print the appropriate outline*/
 	printSchool();/*to print the students of the school */
-	int deleted=deleteStudentInSchool();/*call a function that ask for id to delete and return 1 if it's exist*/
-	if(deleted)
+	school_Error_t deleted=deleteStudentInSchool();/*call a function that ask for id to delete and return 1 if it's exist*/
+	if(deleted==APPROVED_OPERATION)
 	{
 		system("cls");/*To clear the terminal screen*/
 		gotoxy(2,3);/*the appropriate place in the screen to the next print */
