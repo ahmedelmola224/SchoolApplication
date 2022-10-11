@@ -10,7 +10,7 @@ stu_t students[maxOfStudent]={{0,"Ahmed Essam",22,'A','M',"01098114283","5/2"},{
 /*this function to read from the database  and intialize the array with it then it 
  calls another funtion to intialize other arrays in another files                 */
  
-void initStudent(int n)
+void initStudent(int stdnumber)
 {
 	FILE *fp;/*decleration of a pointer to file*/
 	fp=fopen("student.txt","rb");/*open the file to read*/
@@ -18,15 +18,15 @@ void initStudent(int n)
 	{
 		printf("\n Error can't open file");/*if there's a problem with opening it print this message*/
 	}
-	fread(students,sizeof(stu_t),n,fp);/*to read all the data from the file*/
+	fread(students,sizeof(stu_t),stdnumber,fp);/*to read all the data from the file*/
 	fclose(fp);/*close the file*/
-	initSubject(n);/*call another function to intialize the array in it's file*/
+	initSubject(stdnumber);/*call another function to intialize the array in it's file*/
 }
 
 /*this function to update  the database with the new values in the array  
  then calls another funtion to update others databases of another files    */
  
-void terminateStudent(int n)
+void terminateStudent(int stdnumber)
 {
 	FILE *fp;/*decleration of a pointer to file*/
 	fp=fopen("student.txt","wb");/*open the file to write*/
@@ -34,9 +34,9 @@ void terminateStudent(int n)
 	{
 		printf("\n Error can't open file");/*if there's a problem with opening it print this message*/
 	}
-	fwrite(students,sizeof(stu_t),n,fp);/*to write all the array in the file*/
+	fwrite(students,sizeof(stu_t),stdnumber,fp);/*to write all the array in the file*/
 	fclose(fp);/*close the file*/
-	terminateSubject(n);/*call another function to update other databases*/
+	terminateSubject(stdnumber);/*call another function to update other databases*/
 	
 }
 
@@ -75,12 +75,12 @@ void printStudent(const int index,int size)
 /*this function scan name then compare it with other names in the array
 if it's founded it return it's index else it return -1               */
 
-int lookForStudent(const int size)
+student_Error_t lookForStudent(const int size,int *index)
 {
 	int i;
-	char key[maxOfStdName],flag=0;
+	char key[NAMEMAX],flag=0;
 	printf("Name of Student: ");
-	strScan(key,maxOfStdName);/*scan the name to search*/
+	strScan(key,NAMEMAX);/*scan the name to search*/
 	for(i=0;i<size;i++)
 	{
 		if(str_compare(key,students[i].name)==0)/*linear search for the student name in the array*/
@@ -91,13 +91,13 @@ int lookForStudent(const int size)
 	}
 	if(flag)
 	{
-		return i;/*if the flag =1 then i is index of this student return it*/
+		*index=i;
+		return STUDENT_FOUNDED;/*if the flag =1 then i is index of this student return it*/
 	}
 	else 
 	{
-		return -1;/*if the flag=0 the student isn't founded so return -1 */
+		return INVALID_NAME;/*if the flag=0 the student isn't founded so return -1 */
 	}
-	
 }
 
 /*this function to scan new student from the user and print it after scanning*/
@@ -106,7 +106,7 @@ void scanStudent(const int index)
 {
 	students[index].id=index;/*to set the id automatically*/
 	printf("Name :");
-	strScan(students[index].name,maxOfStdName);/*scan the user's name*/
+	strScan(students[index].name,NAMEMAX);/*scan the user's name*/
 	printf("\nAge: ");
 	scanf("%d",&(students[index].age));/*scan the user's age*/
 	printf("\nGender: ");
@@ -118,7 +118,7 @@ void scanStudent(const int index)
 	fflush(stdin);/*clear the buffer*/
 	scanf(" %c",&(students[index].grade));/*scan the user's grade*/
 	printf("\nPhone: ");
-	strScan(students[index].phone,maxOfPhone);/*scan the user's phone*/
+	strScan(students[index].phone,PHONEMAX);/*scan the user's phone*/
 	scanSubject(index);/*call another function to scan this student degrees*/
 	flag=1;/*set the flag*/
 	system("cls");/*To clear the terminal screen*/
@@ -141,7 +141,7 @@ void scanStudentForEdit(const int index)
 		gotoxy(6,5);/*the appropriate place in the screen to the next print */
 		printf("                   ");
 		gotoxy(6,5);/*the appropriate place in the screen to the next print */
-		strScan(students[index].name,maxOfStdName);/*scan the name*/
+		strScan(students[index].name,NAMEMAX);/*scan the name*/
 	}
 	gotoxy(2,7);/*the appropriate place in the screen to the next print */
 	printf("                                         ");
@@ -205,7 +205,7 @@ void scanStudentForEdit(const int index)
 		gotoxy(67,5);/*the appropriate place in the screen to the next print */
 		printf("            ");
 		gotoxy(67,5);/*the appropriate place in the screen to the next print */
-		strScan(students[index].phone,maxOfPhone);/*scan the phone*/
+		strScan(students[index].phone,PHONEMAX);/*scan the phone*/
 	}
 	scanSubjecttForEdit(index);/*call another function to scan the subjects degree*/
 	
@@ -213,24 +213,28 @@ void scanStudentForEdit(const int index)
 
 /*this function to scan id and check it if valid return the id else return -1*/
 
-int scanCheckID(const int size)
+student_Error_t scanCheckID(const int size,int *index)
 {
 	int id;
+	student_Error_t state;
 	gotoxy(4,6+(size*2));/*the appropriate place in the screen to the next print */
 	printf("ID To Edit :");
 	scanf("%d",&id);/*scan the id*/
 	system("cls");/*To clear the terminal screen*/
-	 if(checkIndex(id,size))/*if the id is valid return it*/
+	 if(CHECKINDEX(id,size))/*if the id is valid return it*/
 	 {
-		 return id;
+		 state= STUDENT_FOUNDED;
+		 *index=id;
 	 }
 	 else
 	 {
 		 gotoxy(2,3);/*the appropriate place in the screen to the next print */
 		 printf("There's No Student With This ID...");
 		 printf("\a");/*make sound of error*/
-		 return -1;/*if id isn't valid return -1*/
+		 state= INVALID_ID;/*if id isn't valid return -1*/
+		 *index=-1;
 	 }
+	 return state;
 }
 
 /*this function call another one to search for the student if founded print some 
@@ -238,8 +242,10 @@ information about him/her and print "calling"                                 */
 
 void callStudent(const int size)
 {
-	int index=lookForStudent(size);/*search for the student and get the id*/
-	if(index!=-1)/*if founded*/
+	
+	int index;
+	student_Error_t state =lookForStudent(size,&index);/*search for the student and get the id*/
+	if(state==STUDENT_FOUNDED)/*if founded*/
 	{
 		system("cls");/*To clear the terminal screen*/
 		gotoxy(2,3);/*the appropriate place in the screen to the next print */
@@ -277,24 +283,24 @@ void callStudent(const int size)
 
 /*to swap two student in the array*/
 
-void swapStudent(const int a,const int b)
+void swapStudent(const int stdA,const int stdB)
 {
-	stu_t temp=students[a];
-	students[a]=students[b];
-	students[b]=temp;
+	stu_t temp=students[stdA];
+	students[stdA]=students[stdB];
+	students[stdB]=temp;
 }
 
 /*this function to delete student scaning id then swap the other students and bring 
 one to be deleted at the end and decrease the number of the students by 1
 so when the user need to add 1 the user overwrite on                          */
 
-int deleteStudent(const int size)
+student_Error_t deleteStudent(const int size)
 {
 	int id;
 	gotoxy(4,6+(size*2));/*the appropriate place in the screen to the next print */
 	printf("id To Delete: ");
 	scanf("%d",&id);/*scan the id*/
-	if(checkIndex(id,size))
+	if(CHECKINDEX(id,size))
 	{
 		for(int i=id+1;i<size;i++)
 		{
@@ -302,7 +308,7 @@ int deleteStudent(const int size)
 			swapStudent(i-1,i);/*swap the student to be deleted with next one*/
 		}
 		deleteSubject(id,size);/*call a function to delete his/subjects degree*/
-		return 1;/*return 1 if deleated*/
+		return STUDENT_FOUNDED;/*return 1 if deleated*/
 		
 	}
 	else
@@ -311,6 +317,6 @@ int deleteStudent(const int size)
 		gotoxy(2,3);/*the appropriate place in the screen to the next print */
 		printf("There's No Student With This ID...");
 		printf("\a");/*make sound of error*/
-		return 0;/*return 0 if not deleated*/
+		return INVALID_ID;/*return 0 if not deleated*/
 	}
 }
