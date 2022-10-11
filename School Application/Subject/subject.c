@@ -15,7 +15,7 @@ char *subjects[5]={"Arabic","English","French","Science","Math"};
 
 /*this function to read from the database  and intialize the array with it*/
 
-void initSubject(int n)
+void initSubject(int stdnumber)
 {
 	FILE *fp;/*decleration of a pointer to file*/
 	fp=fopen("subject.txt","rb");/*open the file to read*/
@@ -23,13 +23,13 @@ void initSubject(int n)
 	{
 		printf("\n Error can't open file");/*if there's a problem with opening it print this message*/
 	}
-	fread(sub,sizeof(subj_t),n,fp);/*to read all the data from the file*/
+	fread(sub,sizeof(subj_t),stdnumber,fp);/*to read all the data from the file*/
 	fclose(fp);/*close the file*/
 }
 
 /*this function to update  the database with the new values in the array*/
 
-void terminateSubject(int n)
+void terminateSubject(int stdnumber)
 {
 	FILE *fp;/*decleration of a pointer to file*/
 	fp=fopen("subject.txt","wb");/*open the file to write*/
@@ -37,7 +37,7 @@ void terminateSubject(int n)
 	{
 		printf("\n Error can't open file");/*if there's a problem with opening it print this message*/
 	}
-	fwrite(sub,sizeof(subj_t),n,fp);/*to write all the array in the file*/
+	fwrite(sub,sizeof(subj_t),stdnumber,fp);/*to write all the array in the file*/
 	fclose(fp);/*close the file*/
 }
 
@@ -96,11 +96,11 @@ void scanSubjecttForEdit(const int id)
 
 /*function to swap bewtwwn to elements of type subj_t*/
 
-void swapSubjects(const int a ,const int b)
+void swapSubjects(const int subA ,const int subB)
 {
-	subj_t temp=sub[a];
-	sub[a]=sub[b];
-	sub[b]=temp;
+	subj_t temp=sub[subA];
+	sub[subA]=sub[subB];
+	sub[subB]=temp;
 }
 
 /*function to delete the degrees of a student*/
