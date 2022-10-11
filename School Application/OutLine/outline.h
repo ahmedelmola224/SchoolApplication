@@ -7,7 +7,7 @@
 
 #include "terminal.h"
 #endif
-void modeOutline1(int stdnumber);
+void modeOutline1(int );
 void modeOutline2();
 void modeOutline3();
 
